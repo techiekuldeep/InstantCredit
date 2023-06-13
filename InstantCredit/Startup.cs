@@ -1,4 +1,5 @@
 using InstantCredit.Data;
+using InstantCredit.Service;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,6 +37,8 @@ namespace InstantCredit
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddTransient<IMarketForecaster, MarketForecaster>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 
