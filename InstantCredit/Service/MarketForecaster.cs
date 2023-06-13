@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InstantCredit.Service
 {
-    public class MarketForecaster
+    public class MarketForecaster : IMarketForecaster
     {
         public MarketResult GetMarketPrediction()
         {

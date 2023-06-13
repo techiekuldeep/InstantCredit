@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace InstantCredit.Service
 {
-    public class MarketForecasterV2
+    public class MarketForecasterV2: IMarketForecaster
     {
         public MarketResult GetMarketPrediction()
         {
             return new MarketResult
             {
-                MarketCondition = MarketCondition.Volatile;
+                MarketCondition = MarketCondition.Volatile
             };
         }
     }
