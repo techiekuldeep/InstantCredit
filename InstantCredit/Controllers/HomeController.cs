@@ -1,4 +1,6 @@
 ﻿using InstantCredit.Models;
+using InstantCredit.Models.ViewModels;
+using InstantCredit.Service;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,10 +14,35 @@ using System.Threading.Tasks;
 namespace InstantCredit.Controllers
 {
     public class HomeController : Controller
-    { 
+    {
+        public HomeVM homeVM { get; set; }
+        public HomeController()
+        {
+            homeVM = new HomeVM();
+        }
         public IActionResult Index()
         {
-            return View();
+            
+            MarketForecaster marketForecaster = new MarketForecaster();
+            MarketResult currentMarket = marketForecaster.GetMarketPrediction();
+
+            switch (currentMarket.MarketCondition)
+            {
+                case MarketCondition.StableDown:
+                    homeVM.MarketForecast = "Market shows signs to go down in a stable state! It is a not a good sign to apply for credit applications! But extra credit is always piece of mind if you have handy when you need it.";
+                    break;
+                case MarketCondition.StableUp:
+                    homeVM.MarketForecast = "Market shows signs to go up in a stable state! It is a great sign to apply for credit applications!";
+                    break;
+                case MarketCondition.Volatile:
+                    homeVM.MarketForecast = "Market shows signs of volatility. In uncertain times, it is good to have credit handy if you need extra funds!";
+                    break;
+                default:
+                    homeVM.MarketForecast = "Apply for a credit card using our application!";
+                    break;
+            }
+
+            return View(homeVM);
         }
 
         public IActionResult Privacy()
