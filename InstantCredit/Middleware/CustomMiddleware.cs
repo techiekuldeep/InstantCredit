@@ -23,6 +23,7 @@ namespace InstantCredit.Middleware
             context.Items.Add("CustomMiddlewareTransient", "Transient Middleware - " + transientService.GetGuid());
             context.Items.Add("CustomMiddlewareScoped", "Scoped Middleware - " + scopedService.GetGuid());
             context.Items.Add("CustomMiddlewareSingleton", "Singleton Middleware - " + singletonService.GetGuid());
+
             await _next(context);
         }
     }
