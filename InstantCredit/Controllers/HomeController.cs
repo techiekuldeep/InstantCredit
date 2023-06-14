@@ -23,6 +23,8 @@ namespace InstantCredit.Controllers
         private readonly SendGridSettings _sendGridOptions;
         private readonly TwilioSettings _twilioOptions;
         private readonly InstantForecastSettings _instantOptions;
+        [BindProperty]
+        private CreditApplication CreditModel { get; set; }
 
         public HomeController(IMarketForecaster marketForecaster,
             IOptions<StripeSettings> stripeOptions,
@@ -92,6 +94,12 @@ namespace InstantCredit.Controllers
         //    return View(messages);
 
         //}
+
+        public IActionResult CreditApplication()
+        {
+            CreditModel = new CreditApplication();
+            return View(CreditModel);
+        }
         public IActionResult Privacy()
         {
             return View();
