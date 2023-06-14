@@ -1,6 +1,7 @@
 using InstantCredit.Data;
 using InstantCredit.Service;
 using InstantCredit.Utility.AppSettingsClasses;
+using InstantCredit.Utility.DI_Config;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,11 +42,7 @@ namespace InstantCredit
 
             services.AddTransient<IMarketForecaster, MarketForecaster>();
 
-            services.Configure<InstantForecastSettings>(Configuration.GetSection("InstantForecast"));
-            services.Configure<SendGridSettings>(Configuration.GetSection("SendGrid"));
-            services.Configure<StripeSettings>(Configuration.GetSection("Stripe"));
-            services.Configure<TwilioSettings>(Configuration.GetSection("Twilio"));
-
+            services.AddAppSettingsConfig(Configuration);
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 
