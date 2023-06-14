@@ -108,10 +108,44 @@ namespace InstantCredit.Controllers
             return View(CreditModel);
         }
 
+        //[ValidateAntiForgeryToken]
+        //[HttpPost]
+        //[ActionName("CreditApplication")]
+        //public async Task<IActionResult> CreditApplicationPOST()
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var (validationPassed, errorMessages) = await _creditValidator.PassAllValidations(CreditModel);
+
+        //        CreditResult creditResult = new CreditResult()
+        //        {
+        //            ErrorList = errorMessages,
+        //            CreditID = 0,
+        //            Success = validationPassed
+        //        };
+        //        if (validationPassed)
+        //        {
+        //            //add record to database
+        //            _db.CreditApplicationModel.Add(CreditModel);
+        //            _db.SaveChanges();
+        //            creditResult.CreditID = CreditModel.Id;
+        //            return RedirectToAction(nameof(CreditResult), creditResult);
+        //        }
+        //        else
+        //        {
+        //            return RedirectToAction(nameof(CreditResult), creditResult);
+        //        }
+
+        //    }
+        //    return View(CreditModel);
+        //}
+
         [ValidateAntiForgeryToken]
         [HttpPost]
         [ActionName("CreditApplication")]
-        public async Task<IActionResult> CreditApplicationPOST()
+        public async Task<IActionResult> CreditApplicationPOST(
+            [FromServices] Func<CreditApprovedEnum, ICreditApproved> _creditService
+            )
         {
             if (ModelState.IsValid)
             {
@@ -125,10 +159,16 @@ namespace InstantCredit.Controllers
                 };
                 if (validationPassed)
                 {
+                    CreditModel.CreditApproved = _creditService(
+                        CreditModel.Salary > 50000 ?
+                        CreditApprovedEnum.High : CreditApprovedEnum.Low
+                        ).GetCreditApproved(CreditModel);
+
                     //add record to database
                     _db.CreditApplicationModel.Add(CreditModel);
                     _db.SaveChanges();
                     creditResult.CreditID = CreditModel.Id;
+                    creditResult.CreditApproved = CreditModel.CreditApproved;
                     return RedirectToAction(nameof(CreditResult), creditResult);
                 }
                 else
@@ -139,7 +179,6 @@ namespace InstantCredit.Controllers
             }
             return View(CreditModel);
         }
-
 
         public IActionResult CreditResult(CreditResult creditResult)
         {
