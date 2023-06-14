@@ -44,13 +44,15 @@ namespace InstantCredit
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IMarketForecaster, MarketForecasterV2>();
-
+            //services.TryAddTransient<IMarketForecaster, MarketForecaster>();
+            //services.Replace(ServiceDescriptor.Transient<IMarketForecaster, MarketForecaster>());
+            //services.RemoveAll<IMarketForecaster>();
             services.AddAppSettingsConfig(Configuration);
 
             services.AddTransient<TransientService>();
             services.AddScoped<ScopedService>();
             services.AddSingleton<SingletonService>();
-            services.TryAddTransient<IMarketForecaster, MarketForecaster>();
+           
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 

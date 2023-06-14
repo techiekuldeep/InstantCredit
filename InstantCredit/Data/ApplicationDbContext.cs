@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using InstantCredit.Models;
+
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using System;
@@ -13,5 +15,7 @@ namespace InstantCredit.Data
             : base(options)
         {
         }
+
+        public DbSet<CreditApplication> CreditApplicationModel { get; set; }
     }
 }
