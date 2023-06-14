@@ -64,7 +64,7 @@ namespace InstantCredit.Controllers
         public IActionResult AllConfigSettings()
         {
             List<string> messages = new List<string>();
-            messages.Add($"Instant config - Forecast Tracker: " +_instantOptions.ForecastTrackerEnabled);
+            messages.Add($"Instant config - Forecast Tracker: " + _instantOptions.ForecastTrackerEnabled);
             messages.Add($"Stripe Publishable Key: " + _stripeOptions.PublishableKey);
             messages.Add($"Stripe Secret Key: " + _stripeOptions.SecretKey);
             messages.Add($"Send Grid Key: " + _sendGridOptions.SendGridKey);
@@ -74,6 +74,24 @@ namespace InstantCredit.Controllers
             return View(messages);
 
         }
+
+        //public IActionResult AllConfigSettings(
+        //    [FromServices] IOptions<StripeSettings> stripeOptions,
+        //    [FromServices] IOptions<SendGridSettings> sendGridOptions,
+        //    [FromServices] IOptions<TwilioSettings> twilioOptions
+        //    )
+        //{
+        //    List<string> messages = new List<string>();
+        //    messages.Add($"Instant config - Forecast Tracker: " + _instantOptions.ForecastTrackerEnabled);
+        //    messages.Add($"Stripe Publishable Key: " + stripeOptions.Value.PublishableKey);
+        //    messages.Add($"Stripe Secret Key: " + stripeOptions.Value.SecretKey);
+        //    messages.Add($"Send Grid Key: " + sendGridOptions.Value.SendGridKey);
+        //    messages.Add($"Twilio Phone: " + twilioOptions.Value.PhoneNumber);
+        //    messages.Add($"Twilio SID: " + twilioOptions.Value.AccountSid);
+        //    messages.Add($"Twilio Token: " + twilioOptions.Value.AuthToken);
+        //    return View(messages);
+
+        //}
         public IActionResult Privacy()
         {
             return View();

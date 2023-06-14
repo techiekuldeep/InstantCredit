@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 using System;
@@ -42,13 +43,14 @@ namespace InstantCredit
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddTransient<IMarketForecaster, MarketForecaster>();
+            services.AddTransient<IMarketForecaster, MarketForecasterV2>();
 
             services.AddAppSettingsConfig(Configuration);
 
             services.AddTransient<TransientService>();
             services.AddScoped<ScopedService>();
             services.AddSingleton<SingletonService>();
+            services.TryAddTransient<IMarketForecaster, MarketForecaster>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 
