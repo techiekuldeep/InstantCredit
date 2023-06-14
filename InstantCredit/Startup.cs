@@ -1,4 +1,5 @@
 using InstantCredit.Data;
+using InstantCredit.Middleware;
 using InstantCredit.Service;
 using InstantCredit.Utility.AppSettingsClasses;
 using InstantCredit.Utility.DI_Config;
@@ -67,6 +68,7 @@ namespace InstantCredit
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<CustomMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
