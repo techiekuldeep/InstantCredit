@@ -19,6 +19,7 @@ namespace InstantCredit.Controllers
     {
         public HomeVM homeVM { get; set; }
         private readonly IMarketForecaster _marketForecaster;
+        private readonly ICreditValidator _creditValidator;
         private readonly StripeSettings _stripeOptions;
         private readonly SendGridSettings _sendGridOptions;
         private readonly TwilioSettings _twilioOptions;
@@ -30,7 +31,8 @@ namespace InstantCredit.Controllers
             IOptions<StripeSettings> stripeOptions,
             IOptions<SendGridSettings> sendGridOptions,
             IOptions<TwilioSettings> twilioOptions,
-            IOptions<InstantForecastSettings> instantOptions
+            IOptions<InstantForecastSettings> instantOptions,
+            ICreditValidator creditValidator
             )
         {
             homeVM = new HomeVM();
@@ -39,6 +41,7 @@ namespace InstantCredit.Controllers
             _sendGridOptions = sendGridOptions.Value;
             _twilioOptions = twilioOptions.Value;
             _instantOptions = instantOptions.Value;
+            _creditValidator = creditValidator;
         }
         public IActionResult Index()
         {
@@ -100,6 +103,39 @@ namespace InstantCredit.Controllers
             CreditModel = new CreditApplication();
             return View(CreditModel);
         }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [ActionName("CreditApplication")]
+        public async Task<IActionResult> CreditApplicationPost()
+        {
+            if (ModelState.IsValid)
+            {
+                var (validationPassed, errorMessage) = await _creditValidator.PassAllValidations(CreditModel);
+                CreditResult creditResult = new CreditResult()
+                {
+                    ErrorList = errorMessage,
+                    CreditID = 0,
+                    Success = validationPassed
+                };
+                if (validationPassed)
+                {
+                    //add record to Database
+                    return RedirectToAction(nameof(CreditResult), creditResult);
+                }
+                else 
+                {
+                    return RedirectToAction(nameof(CreditResult), creditResult);
+                }
+            }
+            return View(CreditModel);
+        }
+
+        public IActionResult CreditResult(CreditResult creditResult)
+        {
+            return View(creditResult);
+        }
+
         public IActionResult Privacy()
         {
             return View();

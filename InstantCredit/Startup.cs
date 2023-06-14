@@ -49,6 +49,10 @@ namespace InstantCredit
             //services.RemoveAll<IMarketForecaster>();
             services.AddAppSettingsConfig(Configuration);
 
+            services.AddScoped<IValidationChecker, AddressValidationChecker>();
+            services.AddScoped<IValidationChecker, CreditValidationChecker>();
+            services.AddScoped<ICreditValidator, CreditValidator>();
+
             services.AddTransient<TransientService>();
             services.AddScoped<ScopedService>();
             services.AddSingleton<SingletonService>();
