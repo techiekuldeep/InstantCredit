@@ -1,6 +1,18 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+﻿@model InstantCredit.Models.ViewModels.CreditResult
 
-<p>Use this page to detail your site's privacy policy.</p>
+@if (Model.Success)
+{
+    <h1>Congratulations! Your application has been approved!</h1>
+    <h3>Your application ID : @Model.CreditID</h3>
+}
+else
+{
+    <h1>Your application could not be approved at this point!</h1>
+
+    <h3>Following are the reasons for denial:</h3>
+    @foreach (var reason in Model.ErrorList)
+    {
+        <div> &nbsp;-&nbsp; @reason </div>
+    }
+
+}

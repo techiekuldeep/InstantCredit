@@ -1,4 +1,5 @@
-﻿using InstantCredit.Models;
+﻿using InstantCredit.Data;
+using InstantCredit.Models;
 using InstantCredit.Models.ViewModels;
 using InstantCredit.Service;
 using InstantCredit.Utility.AppSettingsClasses;
@@ -20,19 +21,21 @@ namespace InstantCredit.Controllers
         public HomeVM homeVM { get; set; }
         private readonly IMarketForecaster _marketForecaster;
         private readonly ICreditValidator _creditValidator;
+        private readonly ApplicationDbContext _db;
         private readonly StripeSettings _stripeOptions;
         private readonly SendGridSettings _sendGridOptions;
         private readonly TwilioSettings _twilioOptions;
         private readonly InstantForecastSettings _instantOptions;
         [BindProperty]
-        private CreditApplication CreditModel { get; set; }
+        public CreditApplication CreditModel { get; set; }
 
         public HomeController(IMarketForecaster marketForecaster,
             IOptions<StripeSettings> stripeOptions,
             IOptions<SendGridSettings> sendGridOptions,
             IOptions<TwilioSettings> twilioOptions,
             IOptions<InstantForecastSettings> instantOptions,
-            ICreditValidator creditValidator
+            ICreditValidator creditValidator,
+            ApplicationDbContext db
             )
         {
             homeVM = new HomeVM();
@@ -42,6 +45,7 @@ namespace InstantCredit.Controllers
             _twilioOptions = twilioOptions.Value;
             _instantOptions = instantOptions.Value;
             _creditValidator = creditValidator;
+            _db = db;
         }
         public IActionResult Index()
         {
@@ -107,29 +111,35 @@ namespace InstantCredit.Controllers
         [ValidateAntiForgeryToken]
         [HttpPost]
         [ActionName("CreditApplication")]
-        public async Task<IActionResult> CreditApplicationPost()
+        public async Task<IActionResult> CreditApplicationPOST()
         {
             if (ModelState.IsValid)
             {
-                var (validationPassed, errorMessage) = await _creditValidator.PassAllValidations(CreditModel);
+                var (validationPassed, errorMessages) = await _creditValidator.PassAllValidations(CreditModel);
+
                 CreditResult creditResult = new CreditResult()
                 {
-                    ErrorList = errorMessage,
+                    ErrorList = errorMessages,
                     CreditID = 0,
                     Success = validationPassed
                 };
                 if (validationPassed)
                 {
-                    //add record to Database
+                    //add record to database
+                    _db.CreditApplicationModel.Add(CreditModel);
+                    _db.SaveChanges();
+                    creditResult.CreditID = CreditModel.Id;
                     return RedirectToAction(nameof(CreditResult), creditResult);
                 }
-                else 
+                else
                 {
                     return RedirectToAction(nameof(CreditResult), creditResult);
                 }
+
             }
             return View(CreditModel);
         }
+
 
         public IActionResult CreditResult(CreditResult creditResult)
         {
