@@ -1,6 +1,7 @@
 using InstantCredit.Data;
 using InstantCredit.Middleware;
 using InstantCredit.Service;
+using InstantCredit.Service.LifeTimeExample;
 using InstantCredit.Utility.AppSettingsClasses;
 using InstantCredit.Utility.DI_Config;
 
@@ -44,6 +45,10 @@ namespace InstantCredit
             services.AddTransient<IMarketForecaster, MarketForecaster>();
 
             services.AddAppSettingsConfig(Configuration);
+
+            services.AddTransient<TransientService>();
+            services.AddScoped<ScopedService>();
+            services.AddSingleton<SingletonService>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 
