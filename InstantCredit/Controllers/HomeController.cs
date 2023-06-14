@@ -22,6 +22,7 @@ namespace InstantCredit.Controllers
         private readonly IMarketForecaster _marketForecaster;
         private readonly ICreditValidator _creditValidator;
         private readonly ApplicationDbContext _db;
+        private readonly ILogger _logger;
         private readonly StripeSettings _stripeOptions;
         private readonly SendGridSettings _sendGridOptions;
         private readonly TwilioSettings _twilioOptions;
@@ -35,7 +36,8 @@ namespace InstantCredit.Controllers
             IOptions<TwilioSettings> twilioOptions,
             IOptions<InstantForecastSettings> instantOptions,
             ICreditValidator creditValidator,
-            ApplicationDbContext db
+            ApplicationDbContext db,
+            ILogger<HomeController> logger
             )
         {
             homeVM = new HomeVM();
@@ -46,9 +48,11 @@ namespace InstantCredit.Controllers
             _instantOptions = instantOptions.Value;
             _creditValidator = creditValidator;
             _db = db;
+            _logger = logger;
         }
         public IActionResult Index()
         {
+            _logger.LogInformation("Home Controller Index Action Called");
             MarketResult currentMarket = _marketForecaster.GetMarketPrediction();
 
             switch (currentMarket.MarketCondition)
@@ -66,7 +70,7 @@ namespace InstantCredit.Controllers
                     homeVM.MarketForecast = "Apply for a credit card using our application!";
                     break;
             }
-
+            _logger.LogInformation("Home Conteoller Index Action Ended");
             return View(homeVM);
         }
 
@@ -102,50 +106,18 @@ namespace InstantCredit.Controllers
 
         //}
 
+        
         public IActionResult CreditApplication()
         {
             CreditModel = new CreditApplication();
             return View(CreditModel);
         }
 
-        //[ValidateAntiForgeryToken]
-        //[HttpPost]
-        //[ActionName("CreditApplication")]
-        //public async Task<IActionResult> CreditApplicationPOST()
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var (validationPassed, errorMessages) = await _creditValidator.PassAllValidations(CreditModel);
-
-        //        CreditResult creditResult = new CreditResult()
-        //        {
-        //            ErrorList = errorMessages,
-        //            CreditID = 0,
-        //            Success = validationPassed
-        //        };
-        //        if (validationPassed)
-        //        {
-        //            //add record to database
-        //            _db.CreditApplicationModel.Add(CreditModel);
-        //            _db.SaveChanges();
-        //            creditResult.CreditID = CreditModel.Id;
-        //            return RedirectToAction(nameof(CreditResult), creditResult);
-        //        }
-        //        else
-        //        {
-        //            return RedirectToAction(nameof(CreditResult), creditResult);
-        //        }
-
-        //    }
-        //    return View(CreditModel);
-        //}
-
+        //Post method without Conditional Implementation
         [ValidateAntiForgeryToken]
         [HttpPost]
         [ActionName("CreditApplication")]
-        public async Task<IActionResult> CreditApplicationPOST(
-            [FromServices] Func<CreditApprovedEnum, ICreditApproved> _creditService
-            )
+        public async Task<IActionResult> CreditApplicationPOST()
         {
             if (ModelState.IsValid)
             {
@@ -159,16 +131,10 @@ namespace InstantCredit.Controllers
                 };
                 if (validationPassed)
                 {
-                    CreditModel.CreditApproved = _creditService(
-                        CreditModel.Salary > 50000 ?
-                        CreditApprovedEnum.High : CreditApprovedEnum.Low
-                        ).GetCreditApproved(CreditModel);
-
                     //add record to database
                     _db.CreditApplicationModel.Add(CreditModel);
                     _db.SaveChanges();
                     creditResult.CreditID = CreditModel.Id;
-                    creditResult.CreditApproved = CreditModel.CreditApproved;
                     return RedirectToAction(nameof(CreditResult), creditResult);
                 }
                 else
@@ -179,6 +145,47 @@ namespace InstantCredit.Controllers
             }
             return View(CreditModel);
         }
+
+        //Post method with Conditional Implementation
+        //[ValidateAntiForgeryToken]
+        //[HttpPost]
+        //[ActionName("CreditApplication")]
+        //public async Task<IActionResult> CreditApplicationPOST(
+        //    [FromServices] Func<CreditApprovedEnum, ICreditApproved> _creditService
+        //    )
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var (validationPassed, errorMessages) = await _creditValidator.PassAllValidations(CreditModel);
+
+        //        CreditResult creditResult = new CreditResult()
+        //        {
+        //            ErrorList = errorMessages,
+        //            CreditID = 0,
+        //            Success = validationPassed
+        //        };
+        //        if (validationPassed)
+        //        {
+        //            CreditModel.CreditApproved = _creditService(
+        //                CreditModel.Salary > 50000 ?
+        //                CreditApprovedEnum.High : CreditApprovedEnum.Low
+        //                ).GetCreditApproved(CreditModel);
+
+        //            //add record to database
+        //            _db.CreditApplicationModel.Add(CreditModel);
+        //            _db.SaveChanges();
+        //            creditResult.CreditID = CreditModel.Id;
+        //            creditResult.CreditApproved = CreditModel.CreditApproved;
+        //            return RedirectToAction(nameof(CreditResult), creditResult);
+        //        }
+        //        else
+        //        {
+        //            return RedirectToAction(nameof(CreditResult), creditResult);
+        //        }
+
+        //    }
+        //    return View(CreditModel);
+        //}
 
         public IActionResult CreditResult(CreditResult creditResult)
         {
