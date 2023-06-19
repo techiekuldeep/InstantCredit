@@ -17,13 +17,12 @@ using System.Threading.Tasks;
 
 namespace InstantCredit.Controllers
 {
-    public class HomeController : Controller
+    public class HomeControllerWithUOW : Controller
     {
         public HomeVM homeVM { get; set; }
         private readonly IMarketForecaster _marketForecaster;
         private readonly ICreditValidator _creditValidator;
-        private readonly ApplicationDbContext _db;
-        //private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger _logger;
         private readonly StripeSettings _stripeOptions;
         private readonly SendGridSettings _sendGridOptions;
@@ -32,13 +31,13 @@ namespace InstantCredit.Controllers
         [BindProperty]
         public CreditApplication CreditModel { get; set; }
 
-        public HomeController(IMarketForecaster marketForecaster,
+        public HomeControllerWithUOW(IMarketForecaster marketForecaster,
             IOptions<StripeSettings> stripeOptions,
             IOptions<SendGridSettings> sendGridOptions,
             IOptions<TwilioSettings> twilioOptions,
             IOptions<InstantForecastSettings> instantOptions,
             ICreditValidator creditValidator,
-            ApplicationDbContext db,
+            IUnitOfWork unitOfWork,
             ILogger<HomeController> logger
             )
         {
@@ -49,7 +48,7 @@ namespace InstantCredit.Controllers
             _twilioOptions = twilioOptions.Value;
             _instantOptions = instantOptions.Value;
             _creditValidator = creditValidator;
-            _db = db;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
         public IActionResult Index()
@@ -134,8 +133,8 @@ namespace InstantCredit.Controllers
                 if (validationPassed)
                 {
                     //add record to database
-                    _db.CreditApplicationModel.Add(CreditModel);
-                    _db.SaveChanges();
+                    _unitOfWork.CreditApplication.Add(CreditModel);
+                    _unitOfWork.Save();
                     creditResult.CreditID = CreditModel.Id;
                     return RedirectToAction(nameof(CreditResult), creditResult);
                 }
